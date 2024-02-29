@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,4 +14,13 @@ use App\Http\Controllers\Api\AuthController;
 |
 */
 
-Route::post('/login', [AuthController::class, 'login']);
+//When don't use namespace
+// Route::post('/login', 'App\Http\Controllers\Api\AuthController@login'); 
+
+Route::group(['namespace'=>'Api'], function(){
+    Route::post('/login', 'AuthController@login');
+    //Authentication middleware
+    Route::group(['middleware'=>['auth:sanctum']], function(){
+        Route::any('/courseList', 'CourseController@courseList');
+    });
+});

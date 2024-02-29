@@ -40,9 +40,11 @@ class CourseTypeController extends AdminController
     //It get's called when you create a new form or edit a row or info
     protected function form()
     {
-        dd("create or edit");
+
         $form = new Form(new CourseType());
+
         $form->select('parent_id', __('Parent Category'))->options((new CourseType())::selectOptions());
+
         $form->text('title', __('Title'));
         $form->textarea('description', __('Description'));
         $form->number('Order', __('Order'));
