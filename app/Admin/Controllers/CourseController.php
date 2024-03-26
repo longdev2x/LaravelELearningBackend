@@ -34,7 +34,7 @@ class CourseController extends AdminController
         $grid->column('id', __('Id'));
         $grid->column('user_token', __('User token'));
         $grid->column('name', __('Name'));
-        $grid->column('thumbnail', __('Thumbnail'));
+        $grid->column('thumbnail', __('Thumbnail'))->image('', 50, 50);
         $grid->column('video', __('Video'));
         $grid->column('description', __('Description'));
         $grid->column('type_id', __('Type id'));

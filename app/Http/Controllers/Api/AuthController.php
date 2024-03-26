@@ -96,7 +96,8 @@ class AuthController extends Controller
 
         } catch (\Throwable $th) {
             return response()->json([
-                'status' => false,
+                'code' => 500,
+                'msg' => 'Server internal error',
                 'message' => $th->getMessage()
             ], 500);
         }
