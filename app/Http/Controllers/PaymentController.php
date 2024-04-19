@@ -55,9 +55,10 @@ class PaymentController extends Controller
 
         return response()->json([
             'code' => '200',
-            'msg' => 'is Data of Payment',
-            'data' => 'success'
+            'msg' => 'link to webview',
+            'data' => 'payment-mobile'
         ], 200);
+
         } catch (\Throwable $ex) {
             return response()->json([
                 'status' => false,
