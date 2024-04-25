@@ -41,60 +41,64 @@ class PaypalPaymentController extends Controller
     {
         $paypal_conf = Config::get('paypal');
         
+                            // \PayPal\Rest\ApiContext
         $this->_api_context =  new \PayPal\Rest\ApiContext(new OAuthTokenCredential(
                 $paypal_conf['client_id'],
                 $paypal_conf['secret'])
         );
+
         $this->_api_context->setConfig($paypal_conf['settings']);
     }
 
-    public function payWithpaypal(Request $request)
+    public function payWithpaypal()
     {
-       
-        $order = Order::with(['details'])->where(['id' => session('order_id')])->first();
+        $order = Order::where(['id' => session('id')])->first();
+        
+        //Nối chuỗi tạo ra kiểu dạng yedJu7-245 , mã ngẫu nhiên duy nhất cho mỗi giao dịch
         $tr_ref = Str::random(6) . '-' . rand(1, 1000);
 
         $payer = new Payer();
         $payer->setPaymentMethod('paypal');
 
-        $items_array = [];
-        $item = new Item();
-        $number = sprintf("%0.2f", $order['order_amount']);
-        $item->setName(session('f_name'))
-            ->setCurrency(Helpers::currency_code())
-            ->setQuantity(1)
-            ->setPrice($number);
-         
-        array_push($items_array, $item);
+        // $items_array = [];
+        // $item = new Item();
+        $totalAmout = sprintf("%0.2f", $order['total_amount']);
+        // $item->setName(session('data')['name'])
+        //     ->setCurrency(Helpers::currency_code())
+        //     ->setQuantity(1)
+        //     ->setPrice($totalAmout);
+        
+        // array_push($items_array, $item);
 
-        $item_list = new ItemList();
-        $item_list->setItems($items_array);
+        // $item_list = new ItemList();
+        // $item_list->setItems($items_array);
 
         $amount = new Amount();
-     
         //$amount->setCurrency("USD")
         $amount->setCurrency(Helpers::currency_code())
-            ->setTotal($number);
-        \session()->put('transaction_reference', $tr_ref);
+               ->setTotal($totalAmout);
+
+        session()->put('transaction_reference', $tr_ref);
         $transaction = new Transaction();
         $transaction->setAmount($amount)
-            ->setItemList($item_list)
-            ->setDescription($tr_ref);
-       
+                    ->setDescription($tr_ref);
+            // ->setItemList($item_list)
+
+        //There are no controller, views for 2 route yet.
         $redirect_urls = new RedirectUrls();
         $redirect_urls->setReturnUrl(URL::route('paypal-status'))
-        ->setCancelUrl(URL::route('payment-fail'));
+                      ->setCancelUrl(URL::route('payment-fail'));
+
 
         $payment = new Payment();
-        $payment->setIntent('Sale')
+        $payment->setIntent('sale')
             ->setPayer($payer)
             ->setRedirectUrls($redirect_urls)
             ->setTransactions(array($transaction));
-        
+
         try {
-            
+            // dd($this->_api_context);
             $payment->create($this->_api_context);
-           
              /**
          * Get redirect url
          * The API response provides the url that you must redirect
@@ -118,8 +122,8 @@ class PaypalPaymentController extends Controller
                 ->update([
                     'transaction_reference' => $payment->getId(),
                     'payment_method' => 'paypal',
-                    'order_status' => 'success',
-                    'failed' => now(),
+                    'status' => 0,
+                    // 'failed' => now(),
                     'updated_at' => now()
                 ]);
        
@@ -133,7 +137,7 @@ class PaypalPaymentController extends Controller
             }
 
         } catch (\Exception $ex) {
-           dd($ex->getData());
+           dd($ex->getMessage());
                //   Toastr::error(trans($ex->getData(),['method'=>trans('messages.paypal')]));
 
             Toastr::error(trans('messages.your_currency_is_not_supported',['method'=>trans('messages.paypal')]));
@@ -163,9 +167,7 @@ class PaypalPaymentController extends Controller
 
             $order->transaction_reference = $payment_id;
             $order->payment_method = 'paypal';
-            $order->payment_status = 'paid';
-            $order->order_status = 'confirmed';
-            $order->confirmed = now();
+            $order->status = 1;
             $order->save();
             /*try {
                 Helpers::send_order_notification($order);
@@ -173,22 +175,16 @@ class PaypalPaymentController extends Controller
             } */
 
 
-            return redirect('&status=success');
-            /*if ($order->callback != null) {
-                return redirect($order->callback . '&status=success');
-            }else{
-                return \redirect()->route('payment-success');
-            }*/
+            return \redirect()->route('payment-success');
+            //option 2
+            // return redirect('&status=success');
         }
 
-        $order->order_status = 'failed';
+        $order->status = 'failed';
         $order->failed = now();
         $order->save();
-        return redirect('&status=fail');
-        /*if ($order->callback != null) {
-            return redirect($order->callback . '&status=fail');
-        }else{
-            return \redirect()->route('payment-fail');
-        }*/
+        return \redirect()->route('payment-fail');
+        // option 2
+        // return redirect('&status=fail');
     }
 }

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('total_amount', 50);
             $table->smallInteger('course_id');
             $table->smallInteger('status');
+            $table->string('transaction_reference', 50)->nullable();
+            $table->string('payment_method', 50)->nullable();
             $table->timestamps();
         });
     }

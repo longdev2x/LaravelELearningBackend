@@ -45,15 +45,13 @@
     <div class="row">
         <div class="col-md-12 mb-5 pt-5">
             <center class="">
-                <h1>Payment method</h1>
+                <h1>Pay Now</h1>
             </center>
         </div>
         @php($order=\App\Models\Order::find(session('order_id')))
         <section class="col-lg-12">
             <div class="checkout_details mt-3">
                 <div class="row">
-
-
                     @php($config=\App\CentralLogics\Helpers::get_business_settings('paypal'))
                     @if($config['status'])
                         <div class="col-md-6 mb-4" style="cursor: pointer">

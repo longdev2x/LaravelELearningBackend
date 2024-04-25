@@ -30,11 +30,11 @@ Route::group([
         Route::get('/', 'payment')->name('payment-mobile');
         Route::get('set-payment-method/{name}', 'set-payment-method')->name('set-payment-method');
     });
+    Route::post('pay-paypal', [PaypalPaymentController::class, 'payWithpaypal'])->name('pay-paypal');
+    Route::get('paypal-status', [PaypalPaymentController::class, 'getPaymentStatus'])->name('paypal-status');
+    Route::get('payment-success', [PaymentController::class, 'success'])->name('payment-success');
+    Route::get('payment-fail', [PaymentController::class, 'fail'])->name('payment-fail');
 });
-Route::post('pay-paypal', [PaypalPaymentController::class, 'payWithpaypal'])->name('pay-paypal');
-Route::get('paypal-status', [PaypalPaymentController::class, 'getPaymentStatus'])->name('paypal-status');
-Route::get('payment-success', [PaymentController::class, 'success'])->name('payment-success');
-Route::get('payment-fail', [PaymentController::class, 'fail'])->name('payment-fail');
 // Route::post('pay-paypal', 'PaypalPaymentController@payWithpaypal')->name('pay-paypal');
 // Route::get('paypal-status', 'PaypalPaymentController@getPaymentStatus')->name('paypal-status');
 // Route::get('payment-success', 'PaymentController@success')->name('payment-success');
