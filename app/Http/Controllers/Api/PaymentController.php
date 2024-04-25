@@ -39,7 +39,7 @@ class PaymentController extends Controller
         // if we fall in the below condition, it means we already have an order from the same User_token with the same course_id and status
         if(!empty($orderRes)) {
             return response()->json([
-                'code' => '200',
+                'code' => 200,
                 'msg' => 'The order already exist',
                 'data' => ""
             ], 200);
