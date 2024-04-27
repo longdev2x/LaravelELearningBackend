@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Course;
+use App\Models\Order;
 
 class CourseController extends Controller
 {
@@ -57,6 +58,34 @@ class CourseController extends Controller
                 'code' => 500,
                 'msg' => 'Server internal error',
                 'data' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function coursesBought() {
+        $orderSucces = Order::where('status', '=', 1)->select('course_id', )->get();
+        $coursesBought = [];
+
+        foreach($orderSucces as $o) {
+            $course = Course::where('id', '=', $o['course_id'])->select('id','name', 'thumbnail', 'lesson_num', 'price')->first();
+
+            if($course) {
+                $coursesBought[] = $course;
+            }
+        }
+        
+        try {
+            return response()->json([
+                'code' => 200,
+                'msg' => 'Courses Bought',
+                'data' => $coursesBought
+            ],200);
+
+        } catch(\Throwable $ex) {
+            return response()->json([
+                'code' => 500,
+                'msg' => 'Server internal error',
+                'data' => $ex->getMessage()
             ], 500);
         }
     }
